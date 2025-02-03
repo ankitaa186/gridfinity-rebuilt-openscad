@@ -35,11 +35,11 @@ $fs = 0.25; // .01
 
 /* [General Settings] */
 // number of bases along x-axis
-gridx = 3; //.5
+gridx = 1; //.5
 // number of bases along y-axis
-gridy = 2; //.5
+gridy = 1; //.5
 // bin height. See bin height information and "gridz_define" below.
-gridz = 6; //.1
+gridz = 5; //.1
 
 /* [Linear Compartments] */
 // number of X Divisions (set to zero to have solid bin)
@@ -67,7 +67,7 @@ c_chamfer = 0.5; // .1
 // determine what the variable "gridz" applies to based on your use case
 gridz_define = 0; // [0:gridz is the height of bins in units of 7mm increments - Zack's method,1:gridz is the internal height in millimeters, 2:gridz is the overall external height of the bin in millimeters]
 // overrides internal block height of bin (for solid containers). Leave zero for default height. Units: mm
-height_internal = 0;
+height_internal = 0.0;
 // snap gridz height to nearest 7mm increment
 enable_zsnap = false;
 
@@ -79,7 +79,7 @@ place_tab = 0; // [0:Everywhere-Normal,1:Top-Left Division]
 // how should the top lip act
 style_lip = 0; //[0: Regular lip, 1:remove lip subtractively, 2: remove lip and retain height]
 // scoop weight percentage. 0 disables scoop, 1 is regular scoop. Any real number will scale the scoop.
-scoop = 1; //[0:0.1:1]
+scoop = 0; //[0:0.1:1]
 
 /* [Base Hole Options] */
 // only cut magnet/screw holes at the corners of the bin to save uneccesary print time
