@@ -27,6 +27,12 @@ https://github.com/kennetek/gridfinity-rebuilt-openscad
 use <src/core/gridfinity-rebuilt-utility.scad>
 use <src/core/gridfinity-rebuilt-holes.scad>
 
+//Constants
+silverware_knife_size=[18,22,25];
+silverware_spoon_radius=[20,24,28];
+silverware_spoon_eccentricity=1;
+silverware_spoon_neck=[18,20,22];
+
 // ===== PARAMETERS ===== //
 
 /* [Setup Parameters] */
@@ -42,20 +48,24 @@ gridy = 6; //[4:8]
 gridz = 5; //.1
 
 /* [Silverware Settings] */
-// Type
+// Head Type
 silverware_type=0;//[0:Spoon, 1:Knife, 2:Fork]
+// Head Size
+silverware_head_size=1;//[1:Normal, 0:Slim, 2:Wide]
+// Tail Size
+silverware_tail_multiplier=22;//[22:Normal, 18:Slim, 26:Wide]
 
 /* [Linear Compartments] */
 // number of X Divisions (set to zero to have solid bin)
-divx = 0;
+divx = 0; //[0:0]
 // number of Y Divisions (set to zero to have solid bin)
-divy = 0;
+divy = 0; //[0:0]
 
 /* [Cylindrical Compartments] */
 // number of cylindrical X Divisions (mutually exclusive to Linear Compartments)
-cdivx = 0;
+cdivx = 0; //[0:0]
 // number of cylindrical Y Divisions (mutually exclusive to Linear Compartments)
-cdivy = 0;
+cdivy = 0; //[0:0]
 // orientation
 c_orientation = 2; // [0: x direction, 1: y direction, 2: z direction]
 // diameter of cylindrical cut outs
@@ -144,28 +154,27 @@ module silverware_cutout(type, length, width) {
 // ===== IMPLEMENTATION ===== //
 
 module knife(){
-translate([-11,0,7])
-    cube([22,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]); 
-translate([-11,(0-(gridy*20)),7])
-    cube([22,(gridy*20),height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+translate([0-(silverware_knife_size[silverware_head_size]/2),0,7])
+    cube([silverware_knife_size[silverware_head_size],gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]); 
 }
 
 module spoon(){
-translate([-15,0,7])
-    cube([30,gridy*17,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
- translate([0,gridy*15,7])
-    scale([1,0.21*gridy])
-    cylinder(height(gridz, gridz_define, style_lip, enable_zsnap)+10, 25,25);   
-translate([-12.5,(0-(gridy*20)),7])
-    cube([25,(gridy*20),height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+translate([0-silverware_spoon_neck[silverware_head_size]/2,0,7])
+    cube([silverware_spoon_neck[silverware_head_size],gridy*17,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+ translate([0,gridy*14.2,7])
+    scale([1,0.23*gridy])
+    cylinder(height(gridz, gridz_define, style_lip, enable_zsnap)+10, silverware_spoon_radius[silverware_head_size],silverware_spoon_radius[silverware_head_size]);   
 }
 
 
 module fork(){
 translate([-15,0,7])
     cube([30,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
-translate([-11,(0-(gridy*20)),7])
-    cube([22,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+}
+
+module tail() {
+translate([(0-(silverware_tail_multiplier/2)),(0-(gridy*20)),7])
+    cube([silverware_tail_multiplier,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
 }
 
 color("yellow") {
@@ -185,8 +194,8 @@ gridfinityInit(gridx, gridy, height(gridz, gridz_define, style_lip, enable_zsnap
 gridfinityBase([gridx, gridy], hole_options=hole_options, only_corners=only_corners, thumbscrew=enable_thumbscrew);
 }
 
-translate([-25,(0-(gridy*10)),7])
-    cube([50,gridy*18,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+translate([-25,(0-(gridy*7.5)),7])
+    cube([50,gridy*15,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
 if(silverware_type == 0){
     spoon();
 } else if(silverware_type == 1) {
@@ -194,6 +203,8 @@ if(silverware_type == 0){
 } else {
     fork();
     }
+//tail
+    tail();
 }
 }
 
