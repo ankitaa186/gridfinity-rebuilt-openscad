@@ -35,17 +35,21 @@ $fs = 0.25; // .01
 
 /* [General Settings] */
 // number of bases along x-axis
-gridx = 1; //.5
+gridx = 1; //[1:1]
 // number of bases along y-axis
-gridy = 1; //.5
+gridy = 6; //[4:8]
 // bin height. See bin height information and "gridz_define" below.
 gridz = 5; //.1
 
+/* [Silverware Settings] */
+// Type
+silverware_type=0;//[0:Spoon, 1:Knife, 2:Fork]
+
 /* [Linear Compartments] */
 // number of X Divisions (set to zero to have solid bin)
-divx = 1;
+divx = 0;
 // number of Y Divisions (set to zero to have solid bin)
-divy = 1;
+divy = 0;
 
 /* [Cylindrical Compartments] */
 // number of cylindrical X Divisions (mutually exclusive to Linear Compartments)
@@ -73,7 +77,7 @@ enable_zsnap = false;
 
 /* [Features] */
 // the type of tabs
-style_tab = 1; //[0:Full,1:Auto,2:Left,3:Center,4:Right,5:None]
+style_tab = 5; //[0:Full,1:Auto,2:Left,3:Center,4:Right,5:None]
 // which divisions have tabs
 place_tab = 0; // [0:Everywhere-Normal,1:Top-Left Division]
 // how should the top lip act
@@ -101,9 +105,72 @@ enable_thumbscrew = false;
 
 hole_options = bundle_hole_options(refined_holes, magnet_holes, screw_holes, crush_ribs, chamfer_holes, printable_hole_top);
 
+module silverware_cutout(type, length, width) {
+  if (type == "spoon") {
+    // Improved spoon shape (example - refine as needed)
+    union() {
+      translate([0,0,0])
+      cube([width, length/2, 2], center=true);
+      translate([0,length/2-width/2,0])
+      circle(d=width, center=true);
+        // Add a handle
+        translate([0,-length/2-width/2,0])
+        cube([width/2,length/2,2],center=true);
+    }
+  } else if (type == "knife") {
+    // Improved knife shape (example - refine as needed)
+    cube([width, length, 2], center=true);
+      //Add a handle
+      translate([0,-length/2-width/2,0])
+      cube([width/2,length/2,2],center=true);
+
+  } else if (type == "fork") {
+    // Improved fork shape (example - refine as needed)
+    cube([width, length, 2], center=true);
+         //Add prongs
+      translate([0,length/2 - width/2,0])
+      cube([width/3, width/2, 2], center=true);
+      translate([width/3,length/2 - width/2,0])
+      cube([width/3, width/2, 2], center=true);
+      translate([-width/3,length/2 - width/2,0])
+      cube([width/3, width/2, 2], center=true);
+       //Add a handle
+      translate([0,-length/2-width/2,0])
+      cube([width/2,length/2,2],center=true);
+  } else {
+    echo("Invalid cutout type!");
+  }
+}
 // ===== IMPLEMENTATION ===== //
 
-color("tomato") {
+module knife(){
+translate([-11,0,7])
+    cube([22,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]); 
+translate([-11,(0-(gridy*20)),7])
+    cube([22,(gridy*20),height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+}
+
+module spoon(){
+translate([-15,0,7])
+    cube([30,gridy*17,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+ translate([0,gridy*15,7])
+    scale([1,0.21*gridy])
+    cylinder(height(gridz, gridz_define, style_lip, enable_zsnap)+10, 25,25);   
+translate([-12.5,(0-(gridy*20)),7])
+    cube([25,(gridy*20),height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+}
+
+
+module fork(){
+translate([-15,0,7])
+    cube([30,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+translate([-11,(0-(gridy*20)),7])
+    cube([22,gridy*20,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+}
+
+color("yellow") {
+difference(){
+union() {
 gridfinityInit(gridx, gridy, height(gridz, gridz_define, style_lip, enable_zsnap), height_internal, sl=style_lip) {
 
     if (divx > 0 && divy > 0) {
@@ -116,6 +183,18 @@ gridfinityInit(gridx, gridy, height(gridz, gridz_define, style_lip, enable_zsnap
     }
 }
 gridfinityBase([gridx, gridy], hole_options=hole_options, only_corners=only_corners, thumbscrew=enable_thumbscrew);
+}
+
+translate([-25,(0-(gridy*10)),7])
+    cube([50,gridy*18,height(gridz, gridz_define, style_lip, enable_zsnap)+10]);
+if(silverware_type == 0){
+    spoon();
+} else if(silverware_type == 1) {
+    knife();
+} else {
+    fork();
+    }
+}
 }
 
 
